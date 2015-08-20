@@ -163,5 +163,6 @@ class registerSchema(object):
                 schema['type'] = 'objectid'
                 schema['data_relation'] = \
                     {'resource': foreign_key.column.table.name,
+                     'field': foreign_key.column.name,
                      'embeddable': False}
                 col.foreign_keys.add(foreign_key)

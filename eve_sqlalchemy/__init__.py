@@ -164,8 +164,8 @@ class SQL(DataLayer):
             self._datasource_ex(resource, [], client_projection, None,
                                 client_embedded)
 
-        if isinstance(lookup.get(config.ID_FIELD), dict) \
-                or isinstance(lookup.get(config.ID_FIELD), list):
+        if isinstance(lookup.get(self._id_field(resource)), dict) \
+                or isinstance(lookup.get(self._id_field(resource)), list):
             # very dummy way to get the related object
             # that commes from embeddable parameter
             return lookup
@@ -190,14 +190,14 @@ class SQL(DataLayer):
             model_instance = model(**document)
             self.driver.session.add(model_instance)
             self.driver.session.commit()
-            id_field = getattr(model_instance, self.driver.app.config['ID_FIELD'])
+            id_field = getattr(model_instance, self._id_field(resource))
             document['_id'] = id_field
             rv.append(id_field)
         return rv
 
     def replace(self, resource, id_, document, original):
         model, filter_, fields_, _ = self._datasource_ex(resource, [])
-        id_field = self.driver.app.config['ID_FIELD']
+        id_field = self._id_field(resource)
         filter_ = self.combine_queries(filter_,
                                        parse_dictionary({id_field: id_}, model))
         query = self.driver.session.query(model)
@@ -217,7 +217,7 @@ class SQL(DataLayer):
 
     def update(self, resource, id_, updates, original):
         model, filter_, _, _ = self._datasource_ex(resource, [])
-        id_field = self.driver.app.config['ID_FIELD']
+        id_field = self._id_field(resource)
         filter_ = self.combine_queries(filter_,
                                        parse_dictionary({id_field: id_}, model))
         query = self.driver.session.query(model)
@@ -243,6 +243,14 @@ class SQL(DataLayer):
     @staticmethod
     def _source(resource):
         return config.SOURCES[resource]['source']
+
+    @staticmethod
+    def _id_field(resource):
+        # Check the existence of 'id_field' for backwards compitibility:
+        if 'id_field' in config.DOMAIN[resource]:
+            return config.DOMAIN[resource]['id_field']
+        else:
+            return config.ID_FIELD
 
     def _model(self, resource):
         return self.lookup_model(self._source(resource))
