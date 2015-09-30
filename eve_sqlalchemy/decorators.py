@@ -147,9 +147,6 @@ class registerSchema(object):
                     if not col.primary_key else False
                 if hasattr(col.type, 'length') and col.type.length:
                     schema['maxlength'] = col.type.length
-                if col.default is not None and hasattr(col.default, 'arg'):
-                    schema['default'] = col.default.arg
-                    col.default = None
             elif isinstance(col, column_e):
                 schema['type'] = lookup_column_type(col.type)
             else:
