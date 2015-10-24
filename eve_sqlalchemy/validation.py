@@ -42,9 +42,11 @@ class ValidatorSQL(Validator):
 
     def _validate_unique(self, unique, field, value):
         if unique:
-            query = {field: value}
-            if app.data.find_one(self.resource, None, **query):
-                self._error(field, "value '%s' is not unique" % value)
+            id_field = config.DOMAIN[self.resource]['id_field']
+            if field != id_field and self._id is not None:
+                query = {field: value, id_field: '!= \'%s\'' % self._id}
+                if app.data.find_one(self.resource, None, **query):
+                    self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):
         if 'version' in data_relation and data_relation['version'] is True:
