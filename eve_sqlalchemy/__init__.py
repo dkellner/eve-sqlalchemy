@@ -36,7 +36,7 @@ class SQL(DataLayer):
     SQLAlchemy data access layer for Eve REST API.
     """
     driver = db
-    serializers = {'datetime': str_to_date}
+    serializers = {}
 
     def init_app(self, app):
         try:
